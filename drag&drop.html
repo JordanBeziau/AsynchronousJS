@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Drag & drop</title>
+</head>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', () => {
+
+    const Observable = Rx.Observable;
+
+    const parent = document.getElementById('parent'),
+          widget = document.getElementById('widget');
+
+    const mouseDowns = Observable.fromEvent(widget, 'mousedown'),
+          parentMouseMoves = Observable.fromEvent(parent, 'mousemove'),
+          parentMouseUps = Observable.fromEvent(parent, 'mouseup');
+
+    const drags =
+      mouseDowns
+        .map(event => {
+          return parentMouseMoves
+            .takeUntil(parentMouseUps);
+        }).concatAll();
+
+    drags.forEach(event => {
+      widget.style.top = `${event.clientY}px`;
+      widget.style.left = `${event.clientX}px`;
+    });
+
+  });
+</script>
+<body>
+
+  <div id="parent"
+    style="width:300px;height:300px;background:antiquewhite;"
+  >
+    <div id="widget"
+    style="padding:10px;background:aliceblue;position:absolute;cursor:pointer;"
+    >Draggable Box</div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.0.6/rx.all.js"></script>
+
+</body>
+</html>
